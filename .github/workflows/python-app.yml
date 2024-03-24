@@ -1,39 +1,61 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-name: Python application
+starbucks_data = pd.read_csv('starbucks.csv')
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
-permissions:
-  contents: read
+print(starbucks_data.head())
 
-jobs:
-  build:
 
-    runs-on: ubuntu-latest
+print(starbucks_data.isnull().sum())
 
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pytest
+
+print(starbucks_data.describe())
+
+
+corr_matrix = starbucks_data.corr(numeric_only=True)
+print(corr_matrix)
+
+
+sns.pairplot(starbucks_data)
+plt.show()
+
+plt.figure(figsize=(12, 8))
+sns.boxplot(x='Beverage_category', y='Calories', data=starbucks_data)
+plt.xticks(rotation=45)
+plt.title('Calories across Beverage Categories')
+plt.show()
+
+
+mean_calories = starbucks_data.groupby('Beverage_category')['Calories'].mean().sort_values(ascending=False)
+plt.figure(figsize=(12, 6))
+mean_calories.plot(kind='bar')
+plt.xlabel('Beverage Category')
+plt.ylabel('Mean Calories')
+plt.title('Mean Calories in Each Beverage Category')
+plt.xticks(rotation=45)
+plt.show()
+
+
+plt.figure(figsize=(10, 6))
+plt.hist(starbucks_data['Total Fat (g)'], bins=20, edgecolor='black')
+plt.xlabel('Total Fat (g)')
+plt.ylabel('Frequency')
+plt.title('Distribution of Total Fat Content')
+plt.show()
+
+
+plt.figure(figsize=(10, 6))
+plt.scatter(starbucks_data['Total Carbohydrates (g)'], starbucks_data['Calories'], alpha=0.5)
+plt.xlabel('Total Carbohydrates (g)')
+plt.ylabel('Calories')
+plt.title('Calories vs. Total Carbohydrates')
+plt.show()
+
+
+plt.figure(figsize=(10, 8))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt=".2f")
+plt.title('Correlation Heatmap')
+plt.show()
